@@ -1,50 +1,67 @@
-import React, { FC, MouseEventHandler, useState } from 'react'
+import React, { FC } from 'react'
+
+import type { Movie } from '@Redux/movies/types'
+
+import { useAppDispatch, useAppSelector } from '@Redux/hooks'
+import { getAllMovies } from '@Redux/movies/selectors'
+import { addDislike, addLike } from '@Redux/movies/slices'
+import { removeMovie } from '@Redux/movies/actions'
 import {
-  addDislike,
-  addLike,
-  Movie,
-  removeMovie,
-} from '@Redux/slices/moviesSlice'
-import { useAppDispatch } from '@Redux/hooks'
+  CardBody,
+  CardFooter,
+  Category,
+  Root,
+  Title,
+} from '@Components/Cards/Card.styled'
+
+import Vote from '@Components/Vote/Vote'
+import DeleteButton from '@Components/DeleteButton/DeleteButton'
 
 export type CardProps = {
+  className?: string
   movie: Movie
 }
 
-const Card: FC<CardProps> = ({ movie }) => {
+const Card: FC<CardProps> = ({ movie, className }) => {
+  const movies = useAppSelector<Movie[]>(getAllMovies)
   const dispatch = useAppDispatch()
-  const [toggled, setToggled] = useState(false)
 
-  const handleClick: MouseEventHandler = () => {
+  const handleVoteClick = (data: string, toggled: boolean) => {
     if (toggled) {
-      dispatch(addDislike(movie.id))
+      dispatch(addDislike(data))
     } else {
-      dispatch(addLike(movie.id))
+      dispatch(addLike(data))
     }
-    setToggled(!toggled)
   }
 
+  const handleDeleteClick = (id: string) =>
+    dispatch(
+      removeMovie(movies, {
+        type: 'movies/removeMovie',
+        payload: id,
+      })
+    )
+
   return (
-    <article key={movie.id}>
-      <h3>{movie.title}</h3>
-      <h4>{movie.category}</h4>
-      <p>Likes: {movie.likes}</p>
-      <p>DisLikes: {movie.dislikes}</p>
-      <button
-        type="button"
-        aria-label={toggled ? 'Dislike' : 'Like'}
-        onClick={handleClick}
-      >
-        {toggled ? 'Dislike' : 'Like'}
-      </button>
-      <button
-        type="button"
-        aria-label="Remove"
-        onClick={() => dispatch(removeMovie(movie.id))}
-      >
-        Remove
-      </button>
-    </article>
+    <Root className={className}>
+      <CardBody>
+        <Title>{movie.title}</Title>
+        <Category>{movie.category}</Category>
+      </CardBody>
+      <CardFooter>
+        <Vote
+          data={movie.id}
+          dislikes={movie.dislikes}
+          handleClick={handleVoteClick}
+          likes={movie.likes}
+        />
+        <DeleteButton
+          aria-label="Remove"
+          handleDeleteClick={handleDeleteClick}
+          id={movie.id}
+        />
+      </CardFooter>
+    </Root>
   )
 }
 

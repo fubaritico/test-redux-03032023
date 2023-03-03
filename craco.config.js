@@ -8,6 +8,8 @@ module.exports = {
       '@Hooks': path.resolve(__dirname, 'src/hooks'),
       '@Styles': path.resolve(__dirname, 'src/styles'),
       '@Redux': path.resolve(__dirname, 'src/redux'),
+      '@Slices': path.resolve(__dirname, 'src/redux/slices'),
+      '@Selectors': path.resolve(__dirname, 'src/redux/selectors'),
       '@Svg': path.resolve(__dirname, 'src/svg'),
     },
   },
